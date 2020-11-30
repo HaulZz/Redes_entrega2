@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)http://static.nilo.pro.br/artigos/cliente.html -->
+<html lang="pt_BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>WebSocket Chat</title>
+<link rel="stylesheet" href="./cliente_2_files/bootstrap.min.css">
+<script src="./cliente_2_files/jquery-2.1.1.min.js.transferir"></script>
+<script src="./cliente_2_files/bootstrap.min.js.transferir"></script>
+<script language="javascript" type="text/javascript">
+    var wsUri = "ws://127.0.0.01:50007";
+    var output;
+
+    function init() {
+        output = document.getElementById("output");
+        testWebSocket();
+        fixsize();
+        $('#texto').focus();
+        $( "#envia" ).click(function() {              
+          doSend( $('#texto').val());
+          $('#texto').val('');          
+          $('#texto').focus();                 
+      });
+        $('#texto').keydown(function(event){
+            if(event.keyCode == 13) {
+              event.preventDefault();
+              $( "#envia" ).click();
+              return false;
+          }
+      });
+    }
+    function testWebSocket()
+    {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function(evt) { onOpen(evt) };
+        websocket.onclose = function(evt) { onClose(evt) };
+        websocket.onmessage = function(evt) { onMessage(evt) };
+        websocket.onerror = function(evt) { onError(evt) };
+    }
+
+    function onOpen(evt) {
+        $('#envia').attr('disabled', false); 
+        $('#constatus').text("Conectado");
+        $("#principal").removeClass().addClass("panel panel-primary");
+    }
+
+    function onClose(evt)
+    {        
+        $('#envia').attr('disabled', true); 
+        $('#constatus').text("Desconectado");
+        $("#principal").removeClass().addClass("panel panel-danger");      
+    }
+
+    function onMessage(evt)
+    {
+        writeToScreen('<span style="color: blue;"> '+ evt.data+'</span>');        
+    }
+
+    function onError(evt)
+    {
+        writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+        $("#principal").removeClass().addClass("panel panel-danger");
+    }
+
+    function doSend(message)
+    {
+        if(message)
+        {
+          writeToScreen('<span style="color: black;"> você: '+ message + '</span>');
+          websocket.send(message);
+      }
+  }
+
+  function writeToScreen(message)
+  {
+    var pre = document.createElement("p");
+    pre.style.wordWrap = "break-word";
+    pre.innerHTML = message; 
+    output.appendChild(pre);
+}    
+
+function fixsize()
+{   
+   content_height = $(window).height() - $('#input').height() - 150;
+   $('#output').height(content_height); 
+}
+
+$( window ).unload(function() {
+  websocket.close();
+});
+
+
+$( window ).resize(fixsize);
+
+$( document ).ready( init );
+
+</script>
+</head><body class="vsc-initialized">
+ <div class="container-fluid">
+    <div id="principal" class="panel panel-primary">
+        <div id="constatus" class="panel-heading">WebSockets Chat - Conectado</div>
+        <form role="form" class="panel-body">
+         <div class="form-group">
+         <div id="output" class="row-fluid panel-body" style="overflow-y: scroll; height: 729px;">
+            </div>
+            <div id="input">
+              <label for="textof">Enviar:</label>
+              <input type="text" class="form-control" id="texto">
+              <button id="envia" type="button" class="btn btn-default">Envia</button>
+          </div>
+      </div>
+  </form>
+</div>
+</div>
+
+</body></html>
